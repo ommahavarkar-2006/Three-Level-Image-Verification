@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+{% block title %}Profile - SecureVision{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="fw-bold mb-0">Profile</h2>
+    <a href="{{ url_for('index') }}" class="btn btn-sv-outline">
+        <i class="bi bi-house-door me-1"></i> Back to Home
+    </a>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-4">
+        <div class="glass-card p-4 text-center">
+            <div class="rounded-circle bg-primary d-flex align-items-center justify-content-center mx-auto mb-3" style="width:80px;height:80px;">
+                <span class="text-white fw-bold fs-2">{{ user.full_name[0]|upper }}</span>
+            </div>
+            <h5 class="fw-bold">{{ user.full_name }}</h5>
+            <p class="text-muted-sv">{{ user.email }}</p>
+            <span class="pill pill-success"><i class="bi bi-patch-check-fill me-1"></i>Verified</span>
+        </div>
+    </div>
+    <div class="col-lg-8">
+        <div class="glass-card p-4">
+            <h6 class="fw-bold mb-3">Account Information</h6>
+            <div class="d-flex justify-content-between py-3 border-bottom" style="border-color:var(--sv-border)!important;">
+                <span class="text-muted-sv">Full Name</span>
+                <span class="fw-semibold">{{ user.full_name }}</span>
+            </div>
+            <div class="d-flex justify-content-between py-3 border-bottom" style="border-color:var(--sv-border)!important;">
+                <span class="text-muted-sv">Email</span>
+                <span class="fw-semibold">{{ user.email }}</span>
+            </div>
+            <div class="d-flex justify-content-between py-3 border-bottom" style="border-color:var(--sv-border)!important;">
+                <span class="text-muted-sv">Account Status</span>
+                <span class="pill pill-success">Active</span>
+            </div>
+            <div class="d-flex justify-content-between py-3 border-bottom" style="border-color:var(--sv-border)!important;">
+                <span class="text-muted-sv">Security Level</span>
+                <span class="pill pill-info">Maximum (3-Layer)</span>
+            </div>
+            <div class="d-flex justify-content-between py-3 border-bottom" style="border-color:var(--sv-border)!important;">
+                <span class="text-muted-sv">Last Login</span>
+                <span class="fw-semibold">{{ user.last_login.strftime('%b %d, %Y at %H:%M') if user.last_login else 'Never' }}</span>
+            </div>
+            <div class="d-flex justify-content-between py-3">
+                <span class="text-muted-sv">Account Created</span>
+                <span class="fw-semibold">{{ user.created_at.strftime('%b %d, %Y') }}</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Image Password Sequence -->
+<div class="row g-4 mt-2">
+    <div class="col-12">
+        <div class="glass-card p-4">
+            <h6 class="fw-bold mb-3"><i class="bi bi-images me-2"></i>Your Image Password (3-Level Sequence)</h6>
+            {% if image_sequence %}
+            <div class="d-flex gap-3 justify-content-center flex-wrap">
+                {% for img in image_sequence %}
+                <div class="text-center">
+                    <div class="position-relative">
+                        <span class="position-absolute top-0 start-0 badge rounded-pill bg-primary" style="font-size:0.65rem;z-index:2;">Level {{ loop.index }}</span>
+                        <div class="glass-card p-3 text-center" style="width:130px;height:140px;display:flex;flex-direction:column;align-items:center;justify-content:center;border:2px solid rgba(156,175,154,0.4);">
+                            <img src="{{ url_for('static', filename='images/image-password/' + img.src) }}"
+                                 alt="{{ img.label }}" style="height:70px;object-fit:contain;">
+                            <small class="fw-semibold mt-2">{{ img.label }}</small>
+                        </div>
+                    </div>
+                    <div class="mt-2">
+                        <span class="pill pill-info" style="font-size:0.7rem;">Level {{ loop.index }}</span>
+                    </div>
+                </div>
+                {% if not loop.last %}
+                <div class="d-flex align-items-center">
+                    <i class="bi bi-arrow-right fs-4 text-muted-sv"></i>
+                </div>
+                {% endif %}
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="text-center py-4">
+                <i class="bi bi-exclamation-triangle fs-1 text-muted-sv"></i>
+                <p class="text-muted-sv mt-2 mb-0">No image password configured.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

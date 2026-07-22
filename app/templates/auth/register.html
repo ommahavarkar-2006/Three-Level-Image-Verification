@@ -1,0 +1,331 @@
+{% extends "base.html" %}
+{% block title %}Register - SecureVision{% endblock %}
+{% block extra_css %}<link href="{{ url_for('static', filename='css/auth.css') }}" rel="stylesheet">{% endblock %}
+
+{% block auth_content %}
+<div class="auth-wrapper-wide">
+    <div class="glass-card p-4 p-md-5" style="max-width:700px;width:100%;">
+        <div class="text-center mb-4">
+            <div class="brand-icon-wrap mx-auto mb-3">
+                <i class="bi bi-shield-lock-fill text-white fs-4"></i>
+            </div>
+            <h3 class="fw-bold">Create Account</h3>
+            <p class="text-muted-sv" id="stepDescription">Step 1 of 2 — Enter your details</p>
+        </div>
+
+        <!-- Progress Pills -->
+        <div class="d-flex justify-content-center gap-2 mb-4">
+            <span class="pill pill-success" id="pill1"><i class="bi bi-pencil-fill"></i> Details</span>
+            <span class="pill pill-muted" id="pill2"><i class="bi bi-images"></i> Image Password</span>
+        </div>
+
+        <div id="registerError" class="alert alert-danger d-none"></div>
+
+        <!-- STEP 1: Name + Email + Password -->
+        <div id="step1">
+            <form id="step1Form">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <div class="mb-3">
+                    <label class="form-label">Full Name</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bi bi-person"></i></span>
+                        <input type="text" class="form-control" id="regFullName" placeholder="John Doe" required>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Email</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bi bi-envelope"></i></span>
+                        <input type="email" class="form-control" id="regEmail" placeholder="you@example.com" required>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Password</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bi bi-lock"></i></span>
+                        <input type="password" class="form-control" id="regPassword" placeholder="Min 6 characters" required minlength="6">
+                    </div>
+                </div>
+                <div class="mb-4">
+                    <label class="form-label">Confirm Password</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bi bi-lock-fill"></i></span>
+                        <input type="password" class="form-control" id="regConfirmPassword" placeholder="Re-enter password" required minlength="6">
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-sv-primary w-100" id="step1Btn">
+                    Continue <i class="bi bi-arrow-right ms-2"></i>
+                </button>
+            </form>
+            <div class="text-center mt-4">
+                <span class="text-muted-sv">Already have an account?</span>
+                <a href="{{ url_for('auth.login') }}" class="text-primary fw-semibold">Sign In</a>
+            </div>
+        </div>
+
+        <!-- STEP 2: 3-Level Image Password Creation -->
+        <div id="step2" class="d-none">
+            <div class="text-center mb-3">
+                <h5 class="fw-bold" id="levelTitle">Level 1 of 3</h5>
+                <p class="text-muted-sv" id="levelDesc">Choose your first image</p>
+            </div>
+
+            <!-- Selected Sequence Preview -->
+            <div class="mb-3">
+                <div id="sequencePreview" class="d-flex gap-2 justify-content-center p-2 rounded" style="background:var(--sv-surface-alt);min-height:50px;">
+                    <span class="text-muted-sv small" id="seqPlaceholder">Your image password will appear here...</span>
+                </div>
+            </div>
+
+            <!-- Image Grid (randomized) -->
+            <div class="row g-3 mb-4" id="imageGrid"></div>
+
+            <!-- Actions -->
+            <div class="d-flex justify-content-between">
+                <button class="btn btn-sv-outline" id="backToStep1Btn" onclick="goBackToStep1()">
+                    <i class="bi bi-arrow-left me-1"></i> Back
+                </button>
+                <button class="btn btn-sv-outline" id="resetLevelBtn" onclick="resetCurrentLevel()" style="display:none;">
+                    <i class="bi bi-arrow-counterclockwise me-1"></i> Redo
+                </button>
+            </div>
+        </div>
+
+        <!-- STEP 3: Success -->
+        <div id="step3" class="d-none text-center">
+            <div class="mb-4">
+                <div class="brand-icon-wrap mx-auto mb-3" style="width:60px;height:60px;border-radius:50%;background:#9CAF9A;">
+                    <i class="bi bi-check-lg text-white fs-1"></i>
+                </div>
+                <h4 class="fw-bold">Image Password Created!</h4>
+                <p class="text-muted-sv">Your visual password has been securely saved.</p>
+            </div>
+            <div id="sequenceSummary" class="d-flex gap-2 justify-content-center mb-4"></div>
+            <a href="{{ url_for('auth.login') }}" class="btn btn-sv-primary w-100">
+                <i class="bi bi-arrow-right-circle me-2"></i>Proceed to Login
+            </a>
+        </div>
+    </div>
+</div>
+
+<script>
+const CSRF_TOKEN = "{{ csrf_token() }}";
+const REGISTER_URL = "{{ url_for('auth.register') }}";
+
+let currentLevel = 1;
+let selectedImages = [];
+let levelImages = {};  // Store images shown per level for display
+
+// ===== STEP 1: Submit name + email =====
+document.getElementById('step1Form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const btn = document.getElementById('step1Btn');
+    const errorDiv = document.getElementById('registerError');
+    const fullName = document.getElementById('regFullName').value.trim();
+    const email = document.getElementById('regEmail').value.trim();
+    const password = document.getElementById('regPassword').value;
+    const confirmPassword = document.getElementById('regConfirmPassword').value;
+
+    if (!fullName || !email || !password) {
+        showError('Please fill in all fields.');
+        return;
+    }
+    if (password.length < 6) {
+        showError('Password must be at least 6 characters.');
+        return;
+    }
+    if (password !== confirmPassword) {
+        showError('Passwords do not match.');
+        return;
+    }
+
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Processing...';
+    hideError();
+
+    fetch(REGISTER_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': CSRF_TOKEN },
+        body: JSON.stringify({ action: 'step1', full_name: fullName, email: email, password: password, confirm_password: confirmPassword })
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.success) {
+            showStep2(data.images);
+        } else {
+            showError(data.message);
+            btn.disabled = false;
+            btn.innerHTML = 'Continue <i class="bi bi-arrow-right ms-2"></i>';
+        }
+    })
+    .catch(() => {
+        showError('An error occurred. Please try again.');
+        btn.disabled = false;
+        btn.innerHTML = 'Continue <i class="bi bi-arrow-right ms-2"></i>';
+    });
+});
+
+// ===== STEP 2: Image password creation =====
+function showStep2(images) {
+    document.getElementById('step1').classList.add('d-none');
+    document.getElementById('step2').classList.remove('d-none');
+    document.getElementById('stepDescription').textContent = 'Step 2 of 2 — Create your image password';
+    document.getElementById('pill2').className = 'pill pill-info';
+
+    currentLevel = 1;
+    selectedImages = [];
+    showLevelImages(images);
+}
+
+function showLevelImages(images) {
+    const grid = document.getElementById('imageGrid');
+    grid.innerHTML = '';
+
+    document.getElementById('levelTitle').textContent = 'Level ' + currentLevel + ' of 3';
+    document.getElementById('levelDesc').textContent = 'Choose image ' + currentLevel;
+    document.getElementById('resetLevelBtn').style.display = 'none';
+
+    images.forEach(img => {
+        const col = document.createElement('div');
+        col.className = 'col-4 col-md-3';
+        col.innerHTML = `
+            <div class="image-select-card glass-card hover-lift text-center p-3 cursor-pointer"
+                 onclick="selectImage(this, '${img.id}')">
+                <img src="{{ url_for('static', filename='images/image-password/') }}${img.src}"
+                     alt="${img.label}" class="img-fluid mb-2" style="height:80px;object-fit:contain;">
+                <small class="fw-semibold">${img.label}</small>
+            </div>`;
+        grid.appendChild(col);
+    });
+}
+
+function selectImage(card, imageId) {
+    // Add to sequence
+    selectedImages.push(imageId);
+    updateSequencePreview();
+
+    // Visual feedback
+    card.classList.add('selected');
+    card.style.pointerEvents = 'none';
+
+    // After a short delay, move to next level or finish
+    setTimeout(() => {
+        if (currentLevel < 3) {
+            currentLevel++;
+            // Get fresh randomized images for next level
+            fetch(REGISTER_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRFToken': CSRF_TOKEN },
+                body: JSON.stringify({ action: 'get_images', exclude: selectedImages })
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    showLevelImages(data.images);
+                    document.getElementById('resetLevelBtn').style.display = 'inline-block';
+                }
+            })
+            .catch(() => {});
+        } else {
+            // All 3 levels done - submit
+            submitRegistration();
+        }
+    }, 500);
+}
+
+function updateSequencePreview() {
+    const preview = document.getElementById('sequencePreview');
+    const placeholder = document.getElementById('seqPlaceholder');
+    preview.querySelectorAll('.sequence-item').forEach(el => el.remove());
+
+    if (selectedImages.length === 0) {
+        placeholder.style.display = '';
+        return;
+    }
+    placeholder.style.display = 'none';
+
+    selectedImages.forEach((id, i) => {
+        const item = document.createElement('div');
+        item.className = 'sequence-item';
+        item.innerHTML = '<span class="seq-num">' + (i + 1) + '</span>' + id.charAt(0).toUpperCase() + id.slice(1);
+        preview.appendChild(item);
+    });
+}
+
+function resetCurrentLevel() {
+    // Remove last selection and go back
+    if (selectedImages.length > 0) {
+        selectedImages.pop();
+        updateSequencePreview();
+        currentLevel = selectedImages.length + 1;
+
+        fetch(REGISTER_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-CSRFToken': CSRF_TOKEN },
+            body: JSON.stringify({ action: 'get_images', exclude: selectedImages })
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) showLevelImages(data.images);
+        })
+        .catch(() => {});
+    }
+}
+
+function submitRegistration() {
+    document.getElementById('levelTitle').textContent = 'Creating account...';
+    document.getElementById('levelDesc').textContent = '';
+    document.getElementById('imageGrid').innerHTML = '';
+
+    fetch(REGISTER_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': CSRF_TOKEN },
+        body: JSON.stringify({ action: 'step2', images: selectedImages })
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.success) {
+            // Show success
+            document.getElementById('step2').classList.add('d-none');
+            document.getElementById('step3').classList.remove('d-none');
+            document.getElementById('stepDescription').textContent = 'Registration complete!';
+
+            const summary = document.getElementById('sequenceSummary');
+            selectedImages.forEach((id, i) => {
+                const item = document.createElement('div');
+                item.className = 'sequence-item';
+                item.innerHTML = '<span class="seq-num">' + (i + 1) + '</span>' + id.charAt(0).toUpperCase() + id.slice(1);
+                summary.appendChild(item);
+            });
+        } else {
+            showError(data.message);
+            document.getElementById('levelTitle').textContent = 'Error - Try Again';
+            document.getElementById('levelDesc').textContent = '';
+        }
+    })
+    .catch(() => {
+        showError('An error occurred. Please try again.');
+    });
+}
+
+function goBackToStep1() {
+    document.getElementById('step2').classList.add('d-none');
+    document.getElementById('step1').classList.remove('d-none');
+    document.getElementById('stepDescription').textContent = 'Step 1 of 2 — Enter your details';
+    document.getElementById('pill2').className = 'pill pill-muted';
+    document.getElementById('step1Btn').disabled = false;
+    document.getElementById('step1Btn').innerHTML = 'Continue <i class="bi bi-arrow-right ms-2"></i>';
+    selectedImages = [];
+    currentLevel = 1;
+}
+
+function showError(msg) {
+    const div = document.getElementById('registerError');
+    div.textContent = msg;
+    div.classList.remove('d-none');
+}
+function hideError() {
+    document.getElementById('registerError').classList.add('d-none');
+}
+</script>
+{% endblock %}

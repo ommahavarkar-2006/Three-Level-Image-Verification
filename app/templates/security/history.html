@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+{% block title %}Authentication History - SecureVision{% endblock %}
+{% block extra_css %}<link href="{{ url_for('static', filename='css/dashboard.css') }}" rel="stylesheet">{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="fw-bold">Authentication History</h2>
+</div>
+
+<!-- Filters -->
+<div class="glass-card p-3 mb-4">
+    <form method="GET" class="d-flex flex-wrap gap-3 align-items-center">
+        <div>
+            <label class="form-label small text-muted-sv mb-1">Status</label>
+            <select name="status" class="form-select form-select-sm" onchange="this.form.submit()">
+                <option value="all" {% if status_filter == 'all' %}selected{% endif %}>All</option>
+                <option value="success" {% if status_filter == 'success' %}selected{% endif %}>Successful</option>
+                <option value="failed" {% if status_filter == 'failed' %}selected{% endif %}>Failed</option>
+            </select>
+        </div>
+        <div>
+            <label class="form-label small text-muted-sv mb-1">Time Period</label>
+            <select name="time" class="form-select form-select-sm" onchange="this.form.submit()">
+                <option value="all" {% if time_filter == 'all' %}selected{% endif %}>All Time</option>
+                <option value="today" {% if time_filter == 'today' %}selected{% endif %}>Today</option>
+                <option value="week" {% if time_filter == 'week' %}selected{% endif %}>This Week</option>
+            </select>
+        </div>
+    </form>
+</div>
+
+<!-- Table -->
+<div class="glass-card p-4">
+    {% if logs %}
+    <div class="table-responsive">
+        <table class="table table-dark table-hover align-middle">
+            <thead>
+                <tr>
+                    <th>Date & Time</th>
+                    <th>Auth Level</th>
+                    <th>Status</th>
+                    <th>IP Address</th>
+                    <th>Device</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for log in logs %}
+                <tr>
+                    <td>{{ log.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                    <td><span class="pill pill-info">Level {{ log.authentication_level }}</span></td>
+                    <td>
+                        {% if log.status == 'success' %}
+                        <span class="pill pill-success"><i class="bi bi-check-circle-fill me-1"></i>Success</span>
+                        {% else %}
+                        <span class="pill pill-danger"><i class="bi bi-x-circle-fill me-1"></i>Failed</span>
+                        {% endif %}
+                    </td>
+                    <td class="text-muted-sv">{{ log.ip_address or 'N/A' }}</td>
+                    <td class="text-muted-sv small">{{ (log.user_agent or 'Unknown')[:50] }}{% if log.user_agent and log.user_agent|length > 50 %}...{% endif %}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Pagination -->
+    {% if pagination.pages > 1 %}
+    <nav class="mt-3">
+        <ul class="pagination pagination-sm justify-content-center">
+            {% if pagination.has_prev %}
+            <li class="page-item"><a class="page-link" href="?page={{ pagination.prev_num }}&status={{ status_filter }}&time={{ time_filter }}">Previous</a></li>
+            {% endif %}
+            {% for p in pagination.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
+            {% if p %}
+            <li class="page-item {% if p == pagination.page %}active{% endif %}">
+                <a class="page-link" href="?page={{ p }}&status={{ status_filter }}&time={{ time_filter }}">{{ p }}</a>
+            </li>
+            {% else %}
+            <li class="page-item disabled"><span class="page-link">...</span></li>
+            {% endif %}
+            {% endfor %}
+            {% if pagination.has_next %}
+            <li class="page-item"><a class="page-link" href="?page={{ pagination.next_num }}&status={{ status_filter }}&time={{ time_filter }}">Next</a></li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+    {% else %}
+    <div class="text-center py-5">
+        <i class="bi bi-inbox fs-1 text-muted-sv"></i>
+        <p class="text-muted-sv mt-2">No authentication records found</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,376 @@
+{% extends "base.html" %}
+{% block title %}Sign In - SecureVision{% endblock %}
+{% block extra_css %}<link href="{{ url_for('static', filename='css/auth.css') }}" rel="stylesheet">{% endblock %}
+
+{% block auth_content %}
+<div class="auth-wrapper">
+    <div class="auth-card glass-card" style="max-width:650px;">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <a href="{{ url_for('index') }}" class="btn btn-sm" style="background:#1C1C1C;color:#fff;border:1px solid #1C1C1C;">
+                <i class="bi bi-house-door me-1"></i> Back to Home
+            </a>
+            <a href="{{ url_for('auth.register') }}" class="text-primary fw-semibold text-decoration-none small">
+                Register <i class="bi bi-arrow-right"></i>
+            </a>
+        </div>
+        <div class="text-center mb-4">
+            <div class="brand-icon-wrap mx-auto mb-3">
+                <i class="bi bi-shield-lock-fill text-white fs-4"></i>
+            </div>
+            <h3 class="fw-bold">Welcome Back</h3>
+            <p class="text-muted-sv" id="loginDesc">Enter your credentials to begin</p>
+        </div>
+
+        <div id="loginError" class="alert alert-danger d-none"></div>
+        <div id="loginSuccess" class="alert alert-success d-none"></div>
+
+        <!-- STEP 1: Email + Password -->
+        <div id="emailStep">
+            <form id="emailForm">
+                {{ form.hidden_tag() }}
+                <div class="mb-3">
+                    <label class="form-label">Email</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bi bi-envelope"></i></span>
+                        <input type="email" class="form-control" id="loginEmail" placeholder="you@example.com" required>
+                    </div>
+                </div>
+                <div class="mb-4">
+                    <label class="form-label">Password</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bi bi-lock"></i></span>
+                        <input type="password" class="form-control" id="loginPassword" placeholder="Your password" required>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-sv-primary w-100" id="emailBtn">
+                    <i class="bi bi-arrow-right-circle me-2"></i>Sign In
+                </button>
+            </form>
+            <div class="text-center mt-4">
+                <span class="text-muted-sv">Don't have an account?</span>
+                <a href="{{ url_for('auth.register') }}" class="text-primary fw-semibold">Register</a>
+            </div>
+        </div>
+
+        <!-- STEP 2: 3-Level Image Verification -->
+        <div id="verifyStep" class="d-none">
+            <div class="text-center mb-3">
+                <div class="d-flex justify-content-center gap-2 mb-3">
+                    <span class="pill" id="lpill1"><i class="bi bi-images"></i> Level 1</span>
+                    <span class="pill pill-muted" id="lpill2"><i class="bi bi-images"></i> Level 2</span>
+                    <span class="pill pill-muted" id="lpill3"><i class="bi bi-images"></i> Level 3</span>
+                </div>
+                <h5 class="fw-bold" id="verifyLevelTitle">Level 1 of 3</h5>
+                <p class="text-muted-sv" id="verifyLevelDesc">Select your first image</p>
+            </div>
+
+            <!-- Progress indicator -->
+            <div class="mb-3">
+                <div id="verifyProgress" class="d-flex gap-2 justify-content-center">
+                    <div class="rounded-circle d-flex align-items-center justify-content-center" id="prog1" style="width:36px;height:36px;background:var(--sv-surface-alt);"><span class="fw-bold">1</span></div>
+                    <div class="rounded-circle d-flex align-items-center justify-content-center" id="prog2" style="width:36px;height:36px;background:var(--sv-surface-alt);"><span class="fw-bold">2</span></div>
+                    <div class="rounded-circle d-flex align-items-center justify-content-center" id="prog3" style="width:36px;height:36px;background:var(--sv-surface-alt);"><span class="fw-bold">3</span></div>
+                </div>
+            </div>
+
+            <!-- Image Grid -->
+            <div class="row g-3 mb-4" id="verifyGrid"></div>
+        </div>
+
+        <!-- STEP 3: Visual Challenge -->
+        <div id="challengeStep" class="d-none">
+            <div class="text-center mb-3">
+                <div class="pill pill-info d-inline-block mb-2"><i class="bi bi-grid-3x3-gap me-1"></i> Visual Challenge</div>
+                <h5 class="fw-bold" id="challengePrompt">Select all images containing...</h5>
+                <p class="text-muted-sv">Tap images to select, then click Submit</p>
+            </div>
+            <!-- 3x3 Image Grid -->
+            <div class="row g-2 mb-3" id="challengeGrid"></div>
+            <!-- Selection counter -->
+            <div class="text-center mb-3">
+                <span class="pill pill-muted" id="challengeCount">0 selected</span>
+            </div>
+            <button type="button" class="btn btn-sv-primary w-100" id="challengeSubmitBtn" onclick="submitChallenge()">
+                <i class="bi bi-check-circle me-2"></i>Submit Challenge
+            </button>
+        </div>
+
+        <!-- STEP 4: Success -->
+        <div id="successStep" class="d-none text-center">
+            <div class="mb-3">
+                <div class="brand-icon-wrap mx-auto mb-3" style="width:60px;height:60px;border-radius:50%;background:#9CAF9A;">
+                    <i class="bi bi-check-lg text-white fs-1"></i>
+                </div>
+                <h4 class="fw-bold" id="successMsg">Identity Verified!</h4>
+                <p class="text-muted-sv" id="successDesc">Redirecting to dashboard...</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script id="loginConfig"
+    data-login-url="{{ url_for('auth.login') }}"
+    data-csrf-token="{{ csrf_token() }}"
+    data-img-pw-path="{{ url_for('static', filename='images/image-password/') }}"
+    data-images-path="{{ url_for('static', filename='images/') }}">
+</script>
+<script>
+const _cfg = document.getElementById('loginConfig');
+const LOGIN_URL = _cfg.dataset.loginUrl;
+const CSRF_TOKEN = _cfg.dataset.csrfToken;
+const IMG_PW_PATH = _cfg.dataset.imgPwPath;
+const IMAGES_PATH = _cfg.dataset.imagesPath;
+let verifyLevel = 1;
+let selectedChallengeImages = new Set();
+
+// ===== Email + Password Step =====
+document.getElementById('emailForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const btn = document.getElementById('emailBtn');
+    const email = document.getElementById('loginEmail').value.trim();
+    const password = document.getElementById('loginPassword').value;
+
+    if (!email || !password) { showError('Please enter your email and password.'); return; }
+
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Authenticating...';
+    hideMessages();
+
+    fetch(LOGIN_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': CSRF_TOKEN },
+        body: JSON.stringify({ action: 'authenticate', email: email, password: password })
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.success) {
+            showVerifyStep(data.images, data.level);
+        } else {
+            showError(data.message);
+            btn.disabled = false;
+            btn.innerHTML = '<i class="bi bi-arrow-right-circle me-2"></i>Sign In';
+        }
+    })
+    .catch(() => {
+        showError('An error occurred. Please try again.');
+        btn.disabled = false;
+        btn.innerHTML = '<i class="bi bi-arrow-right-circle me-2"></i>Sign In';
+    });
+});
+
+// ===== Image Verification =====
+function showVerifyStep(images, level) {
+    verifyLevel = level;
+    document.getElementById('emailStep').classList.add('d-none');
+    document.getElementById('verifyStep').classList.remove('d-none');
+    document.getElementById('loginDesc').textContent = 'Verify your identity with images';
+
+    // Update pills
+    for (let i = 1; i <= 3; i++) {
+        const pill = document.getElementById('lpill' + i);
+        if (i < level) pill.className = 'pill pill-success';
+        else if (i === level) pill.className = 'pill pill-info';
+        else pill.className = 'pill pill-muted';
+    }
+
+    // Update progress circles
+    for (let i = 1; i <= 3; i++) {
+        const prog = document.getElementById('prog' + i);
+        if (i < level) {
+            prog.style.background = '#9CAF9A';
+            prog.innerHTML = '<i class="bi bi-check text-white"></i>';
+        } else if (i === level) {
+            prog.style.background = '#7BA3A0';
+            prog.innerHTML = '<span class="text-white fw-bold">' + i + '</span>';
+        } else {
+            prog.style.background = 'var(--sv-surface-alt)';
+            prog.innerHTML = '<span class="fw-bold">' + i + '</span>';
+        }
+    }
+
+    document.getElementById('verifyLevelTitle').textContent = 'Level ' + level + ' of 3';
+    document.getElementById('verifyLevelDesc').textContent = 'Select image ' + level;
+
+    // Render images
+    const grid = document.getElementById('verifyGrid');
+    grid.innerHTML = '';
+    images.forEach(img => {
+        const col = document.createElement('div');
+        col.className = 'col-4 col-md-3';
+        col.innerHTML = `
+            <div class="image-select-card glass-card hover-lift text-center p-3 cursor-pointer"
+                 onclick="verifyImage(this, '${img.id}')">
+                <img src="${IMG_PW_PATH}${img.src}"
+                     alt="${img.label}" class="img-fluid mb-2" style="height:80px;object-fit:contain;">
+                <small class="fw-semibold">${img.label}</small>
+            </div>`;
+        grid.appendChild(col);
+    });
+}
+
+function verifyImage(card, imageId) {
+    // Disable all cards
+    document.querySelectorAll('#verifyGrid .image-select-card').forEach(c => {
+        c.style.pointerEvents = 'none';
+        c.style.opacity = '0.6';
+    });
+    card.style.opacity = '1';
+    card.classList.add('selected');
+
+    fetch(LOGIN_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': CSRF_TOKEN },
+        body: JSON.stringify({ action: 'verify_level', image: imageId })
+    })
+    .then(r => {
+        if (!r.ok && r.status === 401) {
+            return r.json().then(data => ({...data, _status: 401}));
+        }
+        if (!r.ok && r.status === 403) {
+            return r.json().then(data => ({...data, _status: 403}));
+        }
+        return r.json();
+    })
+    .then(data => {
+        if (data.challenge) {
+            // Level 3 passed, show visual challenge
+            showChallenge(data.prompt, data.images);
+        } else if (data.success && data.level) {
+            // Correct, move to next level
+            setTimeout(() => showVerifyStep(data.images, data.level), 400);
+        } else if (data.reset) {
+            // Wrong image, reset to level 1
+            showError(data.message);
+            setTimeout(() => {
+                hideMessages();
+                showVerifyStep(data.images, data.level);
+            }, 1500);
+        } else if (data.locked) {
+            showError(data.message);
+            document.getElementById('verifyStep').classList.add('d-none');
+        } else {
+            showError(data.message || 'Incorrect image.');
+            setTimeout(() => {
+                hideMessages();
+                // Reset to level 1
+                verifyLevel = 1;
+                showVerifyStep(data.images || [], 1);
+            }, 1500);
+        }
+    })
+    .catch(() => {
+        showError('An error occurred. Please try again.');
+    });
+}
+
+// ===== Visual Challenge =====
+function showChallenge(prompt, images) {
+    selectedChallengeImages = new Set();
+    document.getElementById('verifyStep').classList.add('d-none');
+    document.getElementById('challengeStep').classList.remove('d-none');
+    document.getElementById('challengePrompt').textContent = prompt;
+    document.getElementById('challengeCount').textContent = '0 selected';
+    document.getElementById('challengeSubmitBtn').disabled = false;
+    document.getElementById('challengeSubmitBtn').innerHTML = '<i class="bi bi-check-circle me-2"></i>Submit Challenge';
+
+    const grid = document.getElementById('challengeGrid');
+    grid.innerHTML = '';
+    images.forEach(img => {
+        const col = document.createElement('div');
+        col.className = 'col-4';
+        const imgPath = `${IMAGES_PATH}${img.folder}/${img.filename}`;
+        col.innerHTML = `
+            <div class="challenge-card glass-card text-center p-2 cursor-pointer" 
+                 onclick="toggleChallengeImage(this, '${img.filename}')"
+                 style="border:2px solid transparent;border-radius:10px;transition:all 0.2s;">
+                <img src="${imgPath}" alt="Challenge" class="img-fluid" 
+                     style="width:100%;height:100px;object-fit:cover;border-radius:6px;">
+            </div>`;
+        grid.appendChild(col);
+    });
+}
+
+function toggleChallengeImage(card, filename) {
+    if (selectedChallengeImages.has(filename)) {
+        selectedChallengeImages.delete(filename);
+        card.style.borderColor = 'transparent';
+        card.style.background = '';
+    } else {
+        selectedChallengeImages.add(filename);
+        card.style.borderColor = '#9CAF9A';
+        card.style.background = 'rgba(156,175,154,0.15)';
+    }
+    document.getElementById('challengeCount').textContent = selectedChallengeImages.size + ' selected';
+}
+
+function submitChallenge() {
+    if (selectedChallengeImages.size === 0) {
+        showError('Please select at least one image.');
+        return;
+    }
+
+    const btn = document.getElementById('challengeSubmitBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Verifying...';
+    hideMessages();
+
+    fetch(LOGIN_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': CSRF_TOKEN },
+        body: JSON.stringify({
+            action: 'visual_challenge',
+            selected: Array.from(selectedChallengeImages)
+        })
+    })
+    .then(r => {
+        if (!r.ok && r.status === 401) {
+            return r.json().then(data => ({...data, _status: 401}));
+        }
+        if (!r.ok && r.status === 403) {
+            return r.json().then(data => ({...data, _status: 403}));
+        }
+        return r.json();
+    })
+    .then(data => {
+        if (data.verified) {
+            // Challenge passed!
+            document.getElementById('challengeStep').classList.add('d-none');
+            document.getElementById('successStep').classList.remove('d-none');
+            document.getElementById('successMsg').textContent = data.message || 'Identity Verified!';
+            document.getElementById('successDesc').textContent = 'Redirecting to dashboard...';
+            document.getElementById('loginDesc').textContent = 'Welcome back!';
+            setTimeout(() => { window.location.href = data.redirect; }, 1500);
+        } else if (data.new_challenge) {
+            // Failed, show new challenge
+            showError(data.message || 'Incorrect selection.');
+            setTimeout(() => {
+                hideMessages();
+                showChallenge(data.new_challenge.prompt, data.new_challenge.images);
+            }, 1500);
+        } else if (data.locked) {
+            showError(data.message);
+            document.getElementById('challengeStep').classList.add('d-none');
+        } else {
+            showError(data.message || 'Verification failed.');
+            btn.disabled = false;
+            btn.innerHTML = '<i class="bi bi-check-circle me-2"></i>Submit Challenge';
+        }
+    })
+    .catch(() => {
+        showError('An error occurred. Please try again.');
+        btn.disabled = false;
+        btn.innerHTML = '<i class="bi bi-check-circle me-2"></i>Submit Challenge';
+    });
+}
+
+function showError(msg) {
+    const div = document.getElementById('loginError');
+    div.textContent = msg;
+    div.classList.remove('d-none');
+}
+function hideMessages() {
+    document.getElementById('loginError').classList.add('d-none');
+    document.getElementById('loginSuccess').classList.add('d-none');
+}
+</script>
+{% endblock %}

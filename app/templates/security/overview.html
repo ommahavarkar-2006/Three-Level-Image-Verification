@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+{% block title %}Security Overview - SecureVision{% endblock %}
+{% block extra_css %}<link href="{{ url_for('static', filename='css/dashboard.css') }}" rel="stylesheet">{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="fw-bold">Security Overview</h2>
+    <span class="pill pill-success"><i class="bi bi-shield-fill-check"></i> Active</span>
+</div>
+
+<!-- Security Score -->
+<div class="row g-3 mb-4">
+    <div class="col-md-4">
+        <div class="glass-card p-4 text-center">
+            <h6 class="text-muted-sv mb-2">Overall Security Score</h6>
+            <h1 class="fw-bold text-gradient">{{ security_score }}</h1>
+            <small class="text-muted-sv">out of 100</small>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="glass-card p-4">
+            <h6 class="text-muted-sv mb-3">Password Security</h6>
+            <div class="sv-progress mb-2">
+                <div class="sv-progress-bar" style="width:{{ password_strength_pct }}%;background:var(--sv-gradient-primary);"></div>
+            </div>
+            <small class="text-muted-sv">{{ password_strength_pct }}% — Strong</small>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="glass-card p-4">
+            <h6 class="text-muted-sv mb-3">Image Password</h6>
+            <div class="sv-progress mb-2">
+                <div class="sv-progress-bar" style="width:{{ image_password_pct }}%;background:var(--sv-gradient-cyan);"></div>
+            </div>
+            <small class="text-muted-sv">{{ image_password_pct }}% — {% if image_password_pct > 0 %}Configured{% else %}Not Set{% endif %}</small>
+        </div>
+    </div>
+</div>
+
+<!-- Auth Levels Status -->
+<div class="glass-card p-4 mb-4">
+    <h6 class="fw-bold mb-3">Multi-Level Authentication Status</h6>
+    <div class="row g-3">
+        <div class="col-md-4">
+            <div class="d-flex align-items-center gap-3 p-3 rounded" style="background:var(--sv-surface-alt);">
+                <div class="feature-icon" style="background:rgba(107,158,107,0.2);color:#9CAF9A;width:40px;height:40px;border-radius:10px;">
+                    <i class="bi bi-check-circle-fill"></i>
+                </div>
+                <div>
+                    <small class="text-muted-sv">Level 1 — Password</small>
+                    <div class="fw-bold text-success">ACTIVE</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="d-flex align-items-center gap-3 p-3 rounded" style="background:var(--sv-surface-alt);">
+                <div class="feature-icon" style="background:rgba(107,158,107,0.2);color:#9CAF9A;width:40px;height:40px;border-radius:10px;">
+                    <i class="bi bi-check-circle-fill"></i>
+                </div>
+                <div>
+                    <small class="text-muted-sv">Level 2 — Image Password</small>
+                    <div class="fw-bold text-success">ACTIVE</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="d-flex align-items-center gap-3 p-3 rounded" style="background:var(--sv-surface-alt);">
+                <div class="feature-icon" style="background:rgba(107,158,107,0.2);color:#9CAF9A;width:40px;height:40px;border-radius:10px;">
+                    <i class="bi bi-check-circle-fill"></i>
+                </div>
+                <div>
+                    <small class="text-muted-sv">Level 3 — Visual Challenge</small>
+                    <div class="fw-bold text-success">ACTIVE</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Stats & Recent Activity -->
+<div class="row g-3">
+    <div class="col-md-6">
+        <div class="glass-card p-4">
+            <h6 class="fw-bold mb-3">Authentication Statistics</h6>
+            <div class="d-flex justify-content-between mb-3">
+                <span class="text-muted-sv">Successful Attempts</span>
+                <span class="fw-bold text-success">{{ total_success }}</span>
+            </div>
+            <div class="d-flex justify-content-between mb-3">
+                <span class="text-muted-sv">Failed Attempts</span>
+                <span class="fw-bold text-danger">{{ total_failed }}</span>
+            </div>
+            <div class="d-flex justify-content-between">
+                <span class="text-muted-sv">Success Rate</span>
+                <span class="fw-bold">{% set total = total_success + total_failed %}{% if total > 0 %}{{ ((total_success / total) * 100)|round(1) }}%{% else %}N/A{% endif %}</span>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="glass-card p-4">
+            <h6 class="fw-bold mb-3">Recent Security Activity</h6>
+            {% if recent_logs %}
+            {% for log in recent_logs[:4] %}
+            <div class="d-flex justify-content-between align-items-center py-2 {% if not loop.last %}border-bottom{% endif %}" style="border-color:var(--sv-border)!important;">
+                <div>
+                    <small class="text-muted-sv">Level {{ log.authentication_level }}</small>
+                    <div class="small">{{ log.created_at.strftime('%b %d, %H:%M') }}</div>
+                </div>
+                {% if log.status == 'success' %}
+                <span class="pill pill-success">Success</span>
+                {% else %}
+                <span class="pill pill-danger">Failed</span>
+                {% endif %}
+            </div>
+            {% endfor %}
+            {% else %}
+            <p class="text-muted-sv text-center py-3">No recent activity</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

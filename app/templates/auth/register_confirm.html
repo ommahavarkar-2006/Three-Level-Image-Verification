@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}Confirm Registration - SecureVision{% endblock %}
+{% block extra_css %}<link href="{{ url_for('static', filename='css/auth.css') }}" rel="stylesheet">{% endblock %}
+
+{% block auth_content %}
+<div class="auth-wrapper">
+    <div class="auth-card glass-card text-center">
+        <div class="mb-4">
+            <div class="brand-icon-wrap mx-auto mb-3" style="width:60px;height:60px;border-radius:16px;">
+                <i class="bi bi-shield-check text-white fs-2"></i>
+            </div>
+            <h3 class="fw-bold">Confirm Registration</h3>
+            <p class="text-muted-sv">Review your details before creating your account.</p>
+        </div>
+
+        <div class="text-start mb-4">
+            <div class="mb-2"><strong>Name:</strong> {{ reg_data.full_name }}</div>
+            <div class="mb-2"><strong>Email:</strong> {{ reg_data.email }}</div>
+            <div class="mb-2"><strong>Image Password:</strong> {{ reg_data.image_sequence|length }} images selected</div>
+        </div>
+
+        <button class="btn btn-sv-primary w-100" id="confirmRegBtn" onclick="confirmRegistration()">
+            <i class="bi bi-check-circle me-2"></i>Complete Registration
+        </button>
+    </div>
+</div>
+<script>
+    const CSRF_TOKEN = "{{ csrf_token() }}";
+    const CONFIRM_REG_URL = "{{ url_for('auth.register_confirm') }}";
+</script>
+<script src="{{ url_for('static', filename='js/auth.js') }}"></script>
+{% endblock %}

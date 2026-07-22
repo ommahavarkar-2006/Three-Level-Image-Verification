@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SecureVision — Three Layers. One Secure Identity.</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg landing-nav">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center gap-2" href="#">
+                <div class="brand-icon-wrap">
+                    <i class="bi bi-shield-lock-fill text-white"></i>
+                </div>
+                <span class="fw-bold fs-5">SecureVision</span>
+            </a>
+            <div class="d-flex gap-2">
+                <a href="{{ url_for('auth.login') }}" class="btn btn-sv-outline btn-sm">Sign In</a>
+                <a href="{{ url_for('auth.register') }}" class="btn btn-sv-primary btn-sm">Register</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero -->
+    <section class="landing-hero">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-6">
+                    <div class="hero-badge">
+                        <i class="bi bi-shield-fill-check"></i> Next-Gen Authentication
+                    </div>
+                    <h1 class="mb-3">Three Layers.<br><span class="text-gradient">One Secure Identity.</span></h1>
+                    <p class="lead mb-4">Experience the future of authentication with three-level security combining email verification, visual image sequences, and intelligent challenges.</p>
+                    <div class="d-flex gap-3">
+                        <a href="{{ url_for('auth.register') }}" class="btn btn-sv-primary btn-lg">Start Now <i class="bi bi-arrow-right ms-2"></i></a>
+                        <a href="#features" class="btn btn-sv-outline btn-lg">Learn More</a>
+                    </div>
+                </div>
+                <div class="col-lg-6 text-center mt-5 mt-lg-0">
+                    <div class="glass-card p-4 d-inline-block" style="max-width:400px;">
+                        <div class="d-flex justify-content-center gap-2 mb-3">
+                            <span class="pill pill-success"><i class="bi bi-check-circle-fill"></i> Email</span>
+                            <span class="pill pill-info"><i class="bi bi-images"></i> Image Key</span>
+                            <span class="pill pill-muted"><i class="bi bi-puzzle"></i> Challenge</span>
+                        </div>
+                        <div class="row g-2">
+                            <div class="col-4"><div class="rounded bg-primary bg-opacity-25 p-3 text-center"><i class="bi bi-lock fs-4 text-primary"></i></div></div>
+                            <div class="col-4"><div class="rounded bg-info bg-opacity-25 p-3 text-center"><i class="bi bi-eye fs-4 text-info"></i></div></div>
+                            <div class="col-4"><div class="rounded bg-success bg-opacity-25 p-3 text-center"><i class="bi bi-shield-check fs-4 text-success"></i></div></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features -->
+    <section class="py-5" id="features">
+        <div class="container">
+            <h2 class="text-center fw-bold mb-5">Why SecureVision?</h2>
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <div class="glass-card hover-lift p-4 h-100">
+                        <div class="feature-icon" style="background:rgba(156,175,154,0.2);color:#9CAF9A;">
+                            <i class="bi bi-fingerprint"></i>
+                        </div>
+                        <h5 class="fw-bold">Multi-Level Security</h5>
+                        <p class="text-muted-sv">Three independent authentication layers ensure maximum protection against unauthorized access.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="glass-card hover-lift p-4 h-100">
+                        <div class="feature-icon" style="background:rgba(123,163,160,0.2);color:#7BA3A0;">
+                            <i class="bi bi-images"></i>
+                        </div>
+                        <h5 class="fw-bold">Visual Password</h5>
+                        <p class="text-muted-sv">Create a unique image sequence as your visual password — memorable to you, invisible to attackers.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="glass-card hover-lift p-4 h-100">
+                        <div class="feature-icon" style="background:rgba(107,158,107,0.2);color:#9CAF9A;">
+                            <i class="bi bi-graph-up-arrow"></i>
+                        </div>
+                        <h5 class="fw-bold">Security Dashboard</h5>
+                        <p class="text-muted-sv">Monitor your authentication activity, track login history, and manage your security posture.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works -->
+    <section class="py-5">
+        <div class="container">
+            <h2 class="text-center fw-bold mb-5">How It Works</h2>
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <div class="level-step">
+                        <div class="level-num">1</div>
+                        <h5 class="fw-bold">Email Verification</h5>
+                        <p class="text-muted-sv">Enter your registered email to begin authentication with rate limiting and account protection.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="level-step">
+                        <div class="level-num">2</div>
+                        <h5 class="fw-bold">Image Password</h5>
+                        <p class="text-muted-sv">Select your registered images in the exact sequence you created during registration.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="level-step">
+                        <div class="level-num">3</div>
+                        <h5 class="fw-bold">Visual Challenge</h5>
+                        <p class="text-muted-sv">Complete a visual security challenge to prove you are the legitimate user.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="sv-footer">
+        <div class="container text-center">
+            <p class="mb-0">&copy; 2026 SecureVision. Three Layers. One Secure Identity.</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,145 @@
+{% extends "base.html" %}
+{% block title %}Dashboard - SecureVision{% endblock %}
+{% block extra_css %}<link href="{{ url_for('static', filename='css/dashboard.css') }}" rel="stylesheet">{% endblock %}
+
+{% block content %}
+<!-- Welcome Section -->
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <h2 class="fw-bold mb-1">Welcome back, {{ current_user.full_name.split()[0] }}</h2>
+        <p class="text-muted-sv mb-0">Here's your security overview for today.</p>
+    </div>
+    <div class="d-none d-md-block">
+        <span class="pill pill-success"><i class="bi bi-shield-fill-check"></i> Protected</span>
+    </div>
+</div>
+
+<!-- Stats Cards - compact row at top -->
+<div class="row g-2 mb-3">
+    <div class="col-md-3 col-sm-6">
+        <div class="glass-card stat-card p-2">
+            <div class="d-flex align-items-center gap-2">
+                <div class="feature-icon" style="background:rgba(156,175,154,0.2);color:#9CAF9A;width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                    <i class="bi bi-shield-check"></i>
+                </div>
+                <div>
+                    <small class="text-muted-sv" style="font-size:0.7rem;">Security Score</small>
+                    <h6 class="fw-bold mb-0">{{ security_score }}/100</h6>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 col-sm-6">
+        <div class="glass-card stat-card p-2">
+            <div class="d-flex align-items-center gap-2">
+                <div class="feature-icon" style="background:rgba(107,158,107,0.2);color:#9CAF9A;width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                    <i class="bi bi-check-circle"></i>
+                </div>
+                <div>
+                    <small class="text-muted-sv" style="font-size:0.7rem;">Successful Logins</small>
+                    <h6 class="fw-bold mb-0">{{ total_success }}</h6>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 col-sm-6">
+        <div class="glass-card stat-card p-2">
+            <div class="d-flex align-items-center gap-2">
+                <div class="feature-icon" style="background:rgba(196,112,112,0.2);color:#E8A0A0;width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                    <i class="bi bi-x-circle"></i>
+                </div>
+                <div>
+                    <small class="text-muted-sv" style="font-size:0.7rem;">Failed Attempts</small>
+                    <h6 class="fw-bold mb-0">{{ total_failed }}</h6>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 col-sm-6">
+        <div class="glass-card stat-card p-2">
+            <div class="d-flex align-items-center gap-2">
+                <div class="feature-icon" style="background:rgba(168,155,140,0.2);color:#C4B8A8;width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                    <i class="bi bi-clock"></i>
+                </div>
+                <div>
+                    <small class="text-muted-sv" style="font-size:0.7rem;">Last Login</small>
+                    <h6 class="fw-bold mb-0">{{ last_login.strftime('%b %d, %H:%M') if last_login else 'N/A' }}</h6>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Charts Row - constrained height -->
+<div class="row g-2 mb-3">
+    <div class="col-lg-8">
+        <div class="glass-card p-3">
+            <h6 class="fw-bold mb-2" style="font-size:0.85rem;">Authentication Activity (Last 7 Days)</h6>
+            <div style="position:relative;height:180px;">
+                <canvas id="authChart"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="glass-card p-3">
+            <h6 class="fw-bold mb-2" style="font-size:0.85rem;">Auth Status Distribution</h6>
+            <div style="position:relative;height:180px;">
+                <canvas id="statusChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Activity -->
+<div class="glass-card p-3">
+    <h6 class="fw-bold mb-2" style="font-size:0.85rem;">Recent Activity</h6>
+    {% if recent_logs %}
+    <div class="table-responsive">
+        <table class="table table-dark table-hover align-middle mb-0">
+            <thead>
+                <tr>
+                    <th>Time</th>
+                    <th>Level</th>
+                    <th>Status</th>
+                    <th>IP Address</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for log in recent_logs %}
+                <tr>
+                    <td>{{ log.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                    <td><span class="pill pill-info">Level {{ log.authentication_level }}</span></td>
+                    <td>
+                        {% if log.status == 'success' %}
+                        <span class="pill pill-success"><i class="bi bi-check"></i> Success</span>
+                        {% else %}
+                        <span class="pill pill-danger"><i class="bi bi-x"></i> Failed</span>
+                        {% endif %}
+                    </td>
+                    <td class="text-muted-sv">{{ log.ip_address or 'N/A' }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="text-center py-3">
+        <i class="bi bi-inbox fs-1 text-muted-sv"></i>
+        <p class="text-muted-sv mt-2 mb-0">No recent activity</p>
+    </div>
+    {% endif %}
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script type="application/json" id="chart-data">
+    {{ {
+        "labels": chart_labels,
+        "success": chart_success,
+        "failed": chart_failed,
+        "totalSuccess": total_success,
+        "totalFailed": total_failed
+    }|tojson }}
+</script>
+<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+<script src="{{ url_for('static', filename='js/notifications.js') }}"></script>
+{% endblock %}

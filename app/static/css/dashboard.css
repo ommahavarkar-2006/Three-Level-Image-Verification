@@ -1,0 +1,73 @@
+/* ==========================================================================
+   SECUREVISION — Dashboard (Light Theme)
+   ========================================================================== */
+
+/* Table charcoal theme */
+.table-dark {
+  --bs-table-bg: transparent;
+  --bs-table-border-color: rgba(255,255,255,0.08);
+  --bs-table-hover-bg: rgba(156, 175, 154, 0.08);
+  color: var(--sv-card-text, #E8E8E8);
+}
+.table-dark th {
+  color: var(--sv-card-text-muted, #A0A0A0);
+  font-weight: 600;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+.table-dark td {
+  vertical-align: middle;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+
+/* Pagination light */
+.pagination .page-link {
+  background: #252525;
+  border-color: var(--sv-border);
+  color: var(--sv-card-text-muted, #A0A0A0);
+}
+.pagination .page-link:hover {
+  background: rgba(156, 175, 154, 0.08);
+  color: var(--sv-text);
+}
+.pagination .page-item.active .page-link {
+  background: var(--sv-blue);
+  border-color: var(--sv-blue);
+  color: #fff;
+}
+
+/* Form selects light */
+.form-select {
+  background-color: #252525;
+  border-color: var(--sv-border);
+  color: var(--sv-card-text, #E8E8E8);
+}
+.form-select:focus {
+  border-color: var(--sv-blue);
+  box-shadow: 0 0 0 2px rgba(156,175,154,0.2);
+}
+
+/* Dropdown light */
+.dropdown-menu {
+  background: #252525;
+  border: 1px solid var(--sv-border);
+  box-shadow: var(--sv-shadow-soft);
+}
+.dropdown-item {
+  color: var(--sv-card-text-muted, #A0A0A0);
+}
+.dropdown-item:hover {
+  background: rgba(156, 175, 154, 0.1);
+  color: var(--sv-card-text, #E8E8E8);
+}
+
+/* Alert charcoal */
+.alert {
+  border: 1px solid var(--sv-border);
+}
+.alert-success { background: rgba(107, 158, 107, 0.15); color: #9CAF9A; border-color: rgba(107, 158, 107, 0.3); }
+.alert-danger { background: rgba(196, 112, 112, 0.15); color: #E8A0A0; border-color: rgba(196, 112, 112, 0.3); }
+.alert-warning { background: rgba(196, 169, 108, 0.15); color: #D4C090; border-color: rgba(196, 169, 108, 0.3); }
+.alert-info { background: rgba(156, 175, 154, 0.15); color: #9CAF9A; border-color: rgba(156, 175, 154, 0.3); }

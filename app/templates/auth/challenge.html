@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}Level 3 - Visual Challenge - SecureVision{% endblock %}
+{% block extra_css %}<link href="{{ url_for('static', filename='css/auth.css') }}" rel="stylesheet">{% endblock %}
+
+{% block auth_content %}
+<div class="auth-wrapper-wide">
+    <div class="glass-card p-4 p-md-5" style="max-width:900px;width:100%;">
+        <!-- Progress Indicator -->
+        <div class="d-flex justify-content-center gap-2 mb-4">
+            <span class="pill pill-success"><i class="bi bi-check-circle-fill"></i> LEVEL 1</span>
+            <span class="pill pill-success"><i class="bi bi-check-circle-fill"></i> LEVEL 2</span>
+            <span class="pill pill-info"><i class="bi bi-puzzle-fill"></i> LEVEL 3</span>
+        </div>
+
+        <div class="text-center mb-4">
+            <h3 class="fw-bold">Visual Security Challenge</h3>
+            <p class="text-muted-sv" id="challengePrompt">{{ challenge_data.prompt }}</p>
+        </div>
+
+        <!-- Challenge Grid -->
+        <div class="row g-3 mb-4" id="challengeGrid">
+            {% for img in challenge_data.images %}
+            <div class="col-4 col-md-3">
+                <div class="challenge-card glass-card hover-lift text-center p-3 cursor-pointer" data-img-id="{{ img.id }}" onclick="toggleChallengeSelect(this, '{{ img.id }}')">
+                    <img src="{{ url_for('static', filename='images/challenges/' + img.src) }}" alt="Challenge image" class="img-fluid" style="height:100px;object-fit:contain;">
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Actions -->
+        <div class="text-center">
+            <button class="btn btn-sv-primary" id="submitChallengeBtn" onclick="submitChallenge()">
+                Submit Verification <i class="bi bi-shield-fill-check ms-2"></i>
+            </button>
+        </div>
+
+        <div id="challengeError" class="alert alert-danger mt-3 d-none"></div>
+        <div id="challengeSuccess" class="alert alert-success mt-3 d-none">
+            <i class="bi bi-check-circle-fill me-2"></i>Authentication Successful! Redirecting...
+        </div>
+    </div>
+</div>
+<script>
+    const CSRF_TOKEN = "{{ csrf_token() }}";
+    const CHALLENGE_VERIFY_URL = "{{ url_for('auth.challenge_verify') }}";
+    let currentChallengeId = {{ challenge.id }};
+</script>
+<script src="{{ url_for('static', filename='js/challenge.js') }}"></script>
+{% endblock %}
