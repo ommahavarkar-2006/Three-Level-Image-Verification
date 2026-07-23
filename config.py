@@ -23,7 +23,7 @@ class Config:
         SQLALCHEMY_DATABASE_URI = _database_url
     elif MYSQL_PASSWORD:
         SQLALCHEMY_DATABASE_URI = (
-            f"mysql+pymysql://{MYSQL_USER}:{MYSQL_PASSWORD}@{MYSQL_HOST}:{MYSQL_PORT}/{MYSQL_DATABASE}?charset=utf8mb4"
+            f"mysql+pymysql://{MYSQL_USER}:{MYSQL_PASSWORD}@{MYSQL_HOST}:{MYSQL_PORT}/{MYSQL_DATABASE}?charset=utf8mb4&ssl=true"
         )
     else:
         # SQLite fallback for development (no MySQL needed)
