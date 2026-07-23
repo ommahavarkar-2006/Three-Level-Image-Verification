@@ -8,7 +8,10 @@ basedir = os.path.abspath(os.path.dirname(__file__))
 
 
 class Config:
-    SECRET_KEY = os.environ.get('SECRET_KEY', 'dev-secret-key-change-in-production')
+    SECRET_KEY = os.environ.get(
+        'SECRET_KEY',
+        'dev-secret-key-change-in-production'
+    )
 
     # MySQL Database
     MYSQL_HOST = os.environ.get('MYSQL_HOST', 'localhost')
@@ -17,23 +20,33 @@ class Config:
     MYSQL_PASSWORD = os.environ.get('MYSQL_PASSWORD', '')
     MYSQL_DATABASE = os.environ.get('MYSQL_DATABASE', 'securevision')
 
-    # Use MySQL if DATABASE_URL is set or MySQL password is provided, otherwise fallback to SQLite
-    _database_url = os.environ.get('DATABASE_URL')
-    if _database_url:
-        SQLALCHEMY_DATABASE_URI = _database_url
-    elif MYSQL_PASSWORD:
+    # Aiven MySQL connection
+    if MYSQL_PASSWORD:
         SQLALCHEMY_DATABASE_URI = (
-            f"mysql+pymysql://{MYSQL_USER}:{MYSQL_PASSWORD}@{MYSQL_HOST}:{MYSQL_PORT}/{MYSQL_DATABASE}?charset=utf8mb4&ssl=true"
+            f"mysql+pymysql://"
+            f"{MYSQL_USER}:{MYSQL_PASSWORD}"
+            f"@{MYSQL_HOST}:{MYSQL_PORT}"
+            f"/{MYSQL_DATABASE}"
         )
+
+        # SSL configuration for Aiven MySQL
+        SQLALCHEMY_ENGINE_OPTIONS = {
+            "connect_args": {
+                "ssl": {}
+            }
+        }
+
     else:
-        # SQLite fallback for development (no MySQL needed)
-        SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(basedir, 'securevision.db')
+        # SQLite fallback for local development
+        SQLALCHEMY_DATABASE_URI = (
+            'sqlite:///' + os.path.join(basedir, 'securevision.db')
+        )
 
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
     # Session
     PERMANENT_SESSION_LIFETIME = 1800  # 30 minutes
-    SESSION_COOKIE_SECURE = False  # Set True in production with HTTPS
+    SESSION_COOKIE_SECURE = False
     SESSION_COOKIE_HTTPONLY = True
     SESSION_COOKIE_SAMESITE = 'Lax'
 
