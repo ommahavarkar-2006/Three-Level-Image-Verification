@@ -1,181 +1,421 @@
-# SecureVision — Three-Level Image Password Authentication System
+<div align="center">
 
-A modern cybersecurity-focused authentication platform that verifies users through three independent security layers: traditional password, graphical image password sequence, and visual security challenge.
+# 🛡️ SecureVision
 
-## Features
+### Three-Level Image Password Authentication System
 
-- **Three-Level Authentication**: Password + Image Sequence + Visual Challenge
-- **Real-time Password Strength Indicator**: Visual feedback during registration
-- **Image Password System**: Select 3-5 images in sequence as a visual password
-- **Visual Security Challenge**: CAPTCHA-like image classification challenge
-- **Security Dashboard**: Monitor authentication activity with Chart.js visualizations
-- **Authentication History**: Filterable, paginated log of all auth events
-- **Security Overview**: Real-time security score and status indicators
-- **Account Protection**: Rate limiting, failed attempt tracking, automatic lockout
-- **CSRF Protection**: All forms protected against cross-site request forgery
-- **Responsive Design**: Works on desktop, tablet, and mobile
-- **Notification System**: localStorage-based UI notifications (no database table)
-- **Professional UI**: Dark cybersecurity theme with glassmorphism cards
+**A cybersecurity-focused authentication platform combining traditional passwords, graphical authentication, and visual security challenges.**
 
-## Security Architecture
+[![Live Demo](https://img.shields.io/badge/🚀%20Live%20Demo-00C896?style=for-the-badge&logo=render&logoColor=white)](https://three-level-image-verification.onrender.com)
+[![GitHub Repository](https://img.shields.io/badge/GitHub-Repository-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/ommahavarkar-2006/Three-Level-Image-Verification)
+
+![Python](https://img.shields.io/badge/Python-3.13+-3776AB?style=flat-square&logo=python&logoColor=white)
+![Flask](https://img.shields.io/badge/Flask-3.0-000000?style=flat-square&logo=flask&logoColor=white)
+![MySQL](https://img.shields.io/badge/MySQL-Database-4479A1?style=flat-square&logo=mysql&logoColor=white)
+![SQLAlchemy](https://img.shields.io/badge/SQLAlchemy-ORM-D71F00?style=flat-square&logo=sqlalchemy&logoColor=white)
+![Security](https://img.shields.io/badge/Security-Focused-00C896?style=flat-square&logo=hackthebox&logoColor=white)
+![License](https://img.shields.io/badge/License-Educational-blue?style=flat-square)
+
+</div>
+
+---
+
+## 📖 Table of Contents
+
+- [About](#-about-securevision)
+- [Authentication Flow](#-three-level-authentication-flow)
+- [Key Features](#-key-features)
+- [Technology Stack](#-technology-stack)
+- [Project Structure](#️-project-structure)
+- [Local Installation](#️-local-installation)
+- [Production Deployment](#-production-deployment)
+- [Demo Account](#-demo-account)
+- [Security Architecture](#-security-architecture)
+- [Project Highlights](#-project-highlights)
+- [Future Improvements](#-future-improvements)
+- [Developer](#-developer)
+- [License](#-license)
+
+---
+
+## 🔐 About SecureVision
+
+**SecureVision** is a full-stack cybersecurity-focused authentication platform that implements a **three-level authentication architecture**.
+
+Unlike traditional authentication systems that depend only on an email and password, SecureVision introduces two additional graphical and visual verification layers to create a stronger authentication workflow. Users must successfully complete all three security levels before accessing the protected dashboard.
+
+<p align="center">
+  <a href="https://three-level-image-verification.onrender.com">
+    <img src="https://img.shields.io/badge/OPEN%20LIVE%20APPLICATION-00C896?style=for-the-badge&logo=render&logoColor=white">
+  </a>
+</p>
+
+---
+
+## 🔒 Three-Level Authentication Flow
+
+```text
+┌───────────────────────────────────────────┐
+│         LEVEL 1 · CREDENTIAL AUTH          │
+│                                             │
+│   Email + Password                         │
+│   Werkzeug Password Hashing                │
+│   Rate Limiting                            │
+└──────────────────────┬──────────────────────┘
+                        │
+                        ▼
+┌───────────────────────────────────────────┐
+│         LEVEL 2 · IMAGE PASSWORD           │
+│                                             │
+│   Graphical Password Sequence              │
+│   3–5 Images                               │
+│   Order-Dependent Verification             │
+└──────────────────────┬──────────────────────┘
+                        │
+                        ▼
+┌───────────────────────────────────────────┐
+│         LEVEL 3 · VISUAL CHALLENGE         │
+│                                             │
+│   Image Classification                     │
+│   Backend Validation                       │
+│   Security Challenge                       │
+└──────────────────────┬──────────────────────┘
+                        │
+                        ▼
+                ✅ ACCESS GRANTED
+```
+
+---
+
+## ✨ Key Features
+
+### 🛡️ Three-Level Authentication
+- Email and password authentication
+- Graphical image password sequence
+- Visual image classification challenge
+- Backend validation for every authentication layer
+- Dashboard access only after successful verification
+
+### 🔑 Secure Authentication
+- Werkzeug password hashing
+- CSRF protection using Flask-WTF
+- Secure session management
+- Rate limiting
+- Failed login attempt tracking
+- Automatic account lockout
+- Session expiration
+- HTTPOnly cookies
+- SameSite cookie policy
+
+### 🖼️ Image Password Authentication
+Users can create a graphical password by selecting a sequence of images.
+
+**Example:**
 
 ```
-Level 1: Email + Password (Werkzeug hashed, rate-limited)
-    ↓
-Level 2: Image Password Sequence (order-dependent, stored securely)
-    ↓
-Level 3: Visual Challenge (backend-validated image classification)
-    ↓
-Dashboard Access Granted
+🏔️ Mountain  →  📷 Camera  →  🌊 Ocean
 ```
 
-## Technology Stack
+The user must select the same images in the correct order during authentication — an additional graphical authentication layer beyond traditional passwords.
 
-| Layer | Technology |
-|-------|-----------|
-| Backend | Python 3.13+, Flask |
-| Database | MySQL + SQLAlchemy ORM |
-| Auth | Flask-Login, Werkzeug, Flask-WTF (CSRF) |
-| Frontend | HTML5, CSS3, JavaScript, Bootstrap 5 |
-| Charts | Chart.js |
-| Security | Flask-Limiter, Session management, Password hashing |
-| Deployment | Gunicorn, Render-ready |
+### 🧩 Visual Security Challenge
+The third authentication layer requires users to complete a visual image classification challenge, validated on the backend before dashboard access is granted.
 
-## Project Structure
+### 📊 Security Dashboard
+- Authentication activity monitoring
+- Security overview
+- Authentication history
+- Login event tracking
+- Security score
+- Account security status
+- Chart.js data visualizations
 
-```
+### 📱 Responsive Design
+Works seamlessly across 💻 Desktop, 📱 Mobile, and 📟 Tablet.
+
+### 🎨 Modern Cybersecurity Interface
+- Dark cybersecurity theme
+- Glassmorphism UI
+- Responsive cards
+- Interactive components
+- Modern authentication pages
+- Real-time feedback
+- Notification system
+- Professional dashboard interface
+
+---
+
+## 🧰 Technology Stack
+
+| Category | Technologies |
+|---|---|
+| Programming Language | Python 3.13+ |
+| Backend Framework | Flask |
+| Database | MySQL |
+| ORM | SQLAlchemy |
+| Authentication | Flask-Login |
+| Password Security | Werkzeug |
+| CSRF Protection | Flask-WTF |
+| Rate Limiting | Flask-Limiter |
+| Frontend | HTML5, CSS3, JavaScript |
+| UI Framework | Bootstrap 5 |
+| Data Visualization | Chart.js |
+| Database Hosting | Aiven Cloud |
+| Application Hosting | Render |
+| Production Server | Gunicorn |
+
+---
+
+## 🏗️ Project Structure
+
+```text
 securevision/
-├── app.py                  # Entry point
-├── config.py               # Configuration
-├── requirements.txt        # Python dependencies
-├── .env.example            # Environment variables template
-├── Procfile                # Deployment config
-├── runtime.txt             # Python version
-├── database.sql            # MySQL schema
+│
+├── app.py
+├── wsgi.py
+├── config.py
+├── requirements.txt
+├── .env.example
+├── Procfile
+├── runtime.txt
+├── database.sql
+│
 ├── app/
-│   ├── __init__.py         # App factory
-│   ├── extensions.py       # Flask extensions
-│   ├── models/             # SQLAlchemy models
+│   ├── __init__.py
+│   ├── extensions.py
+│   │
+│   ├── models/
 │   │   ├── user.py
 │   │   ├── image_password.py
 │   │   ├── authentication_log.py
 │   │   └── security_challenge.py
-│   ├── auth/               # Authentication blueprint
+│   │
+│   ├── auth/
 │   │   ├── routes.py
 │   │   ├── forms.py
 │   │   └── utils.py
-│   ├── dashboard/          # Dashboard blueprint
+│   │
+│   ├── dashboard/
 │   │   └── routes.py
-│   ├── security/           # Security blueprint
+│   │
+│   ├── security/
 │   │   ├── routes.py
 │   │   └── utils.py
-│   ├── templates/          # Jinja2 HTML templates
-│   └── static/             # CSS, JS, images
+│   │
+│   ├── templates/
+│   │
+│   └── static/
+│       ├── css/
+│       ├── js/
+│       └── images/
+│
+└── README.md
 ```
 
-## Installation
+---
 
-### Prerequisites
+## ⚙️ Local Installation
 
-- Python 3.13+
-- MySQL 8.0+
-
-### Setup
-
-1. **Clone the repository:**
+### 1️⃣ Clone the Repository
 ```bash
-git clone <repo-url>
-cd securevision
+git clone https://github.com/ommahavarkar-2006/Three-Level-Image-Verification.git
+cd Three-Level-Image-Verification
 ```
 
-2. **Create virtual environment:**
+### 2️⃣ Create a Virtual Environment
 ```bash
 python -m venv venv
 ```
 
-3. **Activate virtual environment:**
+### 3️⃣ Activate the Virtual Environment
 
-Windows:
+**Windows**
 ```bash
 venv\Scripts\activate
 ```
 
-macOS/Linux:
+**macOS/Linux**
 ```bash
 source venv/bin/activate
 ```
 
-4. **Install dependencies:**
+### 4️⃣ Install Dependencies
 ```bash
 pip install -r requirements.txt
 ```
 
-5. **Configure environment:**
-```bash
-cp .env.example .env
-```
-Edit `.env` with your MySQL credentials and a secure `SECRET_KEY`.
+### 5️⃣ Configure Environment Variables
 
-6. **Create MySQL database:**
+Create a `.env` file in the project root:
+
+```env
+SECRET_KEY=your-secure-secret-key
+
+MYSQL_HOST=localhost
+MYSQL_PORT=3306
+MYSQL_USER=root
+MYSQL_PASSWORD=your-password
+MYSQL_DATABASE=securevision
+```
+
+> ⚠️ For production deployment, use a strong randomly generated secret key.
+
+### 6️⃣ Create the Database
 ```bash
 mysql -u root -p < database.sql
 ```
 
-7. **Run the application:**
+### 7️⃣ Run the Application
 ```bash
 python app.py
 ```
 
-8. **Open in browser:**
+Open the application at **http://localhost:5000**
+
+---
+
+## 🌐 Production Deployment
+
+SecureVision is deployed using the following architecture:
+
+```text
+                    USER
+                      │
+                      ▼
+              ┌─────────────────┐
+              │      RENDER      │
+              │                  │
+              │   Flask App      │
+              │   Gunicorn       │
+              │   HTTPS          │
+              └────────┬─────────┘
+                        │
+                        ▼
+              ┌─────────────────┐
+              │   AIVEN CLOUD    │
+              │                  │
+              │  MySQL Database  │
+              └─────────────────┘
 ```
-http://localhost:5000
-```
 
-## Deploy on Render
+### Production Services
 
-1. Push code to GitHub
-2. Create a new Web Service on Render
-3. Connect your GitHub repository
-4. Set environment variables from `.env.example`
-5. Add a MySQL database on Render
-6. Deploy — Render will use `Procfile` and `runtime.txt` automatically
+| Service | Technology |
+|---|---|
+| Application Hosting | Render |
+| Database Hosting | Aiven Cloud |
+| Backend | Flask |
+| Production Server | Gunicorn |
+| Database | MySQL |
+| ORM | SQLAlchemy |
+| Security | HTTPS, CSRF Protection, Rate Limiting |
 
-## Demo Credentials
+---
+
+## 🧪 Demo Account
+
+The deployed application includes a demo account for testing.
 
 | Field | Value |
-|-------|-------|
-| Email | demo@securevision.com |
-| Password | Demo@12345 |
-| Image Password | Mountain → Camera → Ocean |
+|---|---|
+| Email | `demo@securevision.com` |
+| Password | `demo123` |
 
-## Environment Variables
+> The image password and visual security challenge must be completed according to the configured demo account data.
 
-| Variable | Description |
-|----------|-------------|
-| SECRET_KEY | Flask secret key (use a strong random string) |
-| DATABASE_URL | Full MySQL connection URI |
-| MYSQL_HOST | MySQL host (default: localhost) |
-| MYSQL_PORT | MySQL port (default: 3306) |
-| MYSQL_USER | MySQL username |
-| MYSQL_PASSWORD | MySQL password |
-| MYSQL_DATABASE | Database name |
-| FLASK_ENV | `development` or `production` |
+---
 
-## Screenshots
+## 🔒 Security Architecture
 
-> Add screenshots here
+### Password Hashing
+Passwords are never stored as plain text.
 
-## Future Improvements
+```text
+Plain Password
+      │
+      ▼
+Werkzeug Password Hashing
+      │
+      ▼
+Secure Password Hash
+      │
+      ▼
+Database
+```
 
-- Two-factor authentication via email/SMS
-- OAuth2 social login integration
-- Passwordless authentication option
-- Advanced threat detection and anomaly alerts
-- Multi-device session management
-- Audit log export functionality
-- Dark/Light theme toggle
-- Profile picture upload
+### CSRF Protection
+Protected forms use CSRF tokens to help prevent unauthorized cross-site requests.
 
-## License
+### Rate Limiting
+Rate limiting helps protect authentication endpoints from excessive repeated requests and brute-force attempts.
 
-This project is created for educational and portfolio purposes.
+### Account Lockout
+Multiple failed authentication attempts can trigger temporary account protection.
+
+### Secure Sessions
+- HTTPOnly cookies
+- SameSite cookie policy
+- Secure cookies in production
+- Configurable session lifetime
+
+---
+
+## 📈 Project Highlights
+
+- ✅ Built a complete full-stack cybersecurity application
+- ✅ Implemented a three-level authentication architecture
+- ✅ Designed graphical image password authentication
+- ✅ Implemented visual image classification challenges
+- ✅ Integrated MySQL with SQLAlchemy ORM
+- ✅ Implemented CSRF protection
+- ✅ Implemented rate limiting
+- ✅ Added secure password hashing
+- ✅ Added account lockout protection
+- ✅ Built authentication history tracking
+- ✅ Created security analytics dashboard
+- ✅ Deployed the application to Render
+- ✅ Integrated Aiven Cloud MySQL
+- ✅ Configured Gunicorn for production deployment
+
+---
+
+## 🔮 Future Improvements
+
+- 🔐 Two-Factor Authentication using Email/SMS
+- 🌐 OAuth2 Social Login
+- 🔑 Passwordless Authentication
+- 🤖 AI-Based Threat Detection
+- 📱 Multi-Device Session Management
+- 📄 Audit Log Export
+- 🔔 Real-Time Security Alerts
+- 👤 Profile Image Upload
+- 🌓 Dark/Light Theme Toggle
+- 🛡️ Advanced Anomaly Detection
+
+---
+
+## 👨‍💻 Developer
+
+**Om Mahavarkar**
+
+*B.Sc. Information Technology Student | Full Stack Developer | Cybersecurity Enthusiast*
+
+I enjoy building practical full-stack applications that combine secure backend architecture, database design, modern user interfaces, and real-world problem solving.
+
+### 🔗 Links
+
+- 💻 [GitHub Repository](https://github.com/ommahavarkar-2006/Three-Level-Image-Verification)
+- 🚀 [Live Application](https://three-level-image-verification.onrender.com)
+- 👤 [GitHub Profile](https://github.com/ommahavarkar-2006)
+
+---
+
+## 📄 License
+
+This project was developed for educational, cybersecurity learning, and portfolio purposes.
+
+<div align="center">
+
+⭐ **If you found this project interesting, consider giving it a star!** ⭐
+
+</div>
