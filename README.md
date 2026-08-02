@@ -125,7 +125,7 @@ The third authentication layer requires users to complete a visual image classif
 - Authentication activity monitoring
 - Security overview
 - Authentication history
-- Login event tracking
+- Login Event tracking
 - Security score
 - Account security status
 - Chart.js data visualizations
